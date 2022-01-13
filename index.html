@@ -10,6 +10,21 @@
 </head>
 <body>
   <div class="grid-container">
+    
+    <div class="grid-1">
+      <div class="sidebar">
+        <h2>Base Layers</h2>
+        <input type="radio" name='baseLayerRadioButton' value='OSM_Layer' checked>OSM Standard<br>
+        <input type="radio" name='baseLayerRadioButton' value='IGN_Layer'>IGN Layer<br>
+        <input type="radio" name='baseLayerRadioButton' value='bing_Layer'>Bing Layer<br>
+        <input type="radio" name='baseLayerRadioButton' value='stamenLayer'>Stamen Layer<br>
+        <input type="radio" name='baseLayerRadioButton' value='NOAAWMSLayer'>NOAAWMSLayer<br>
+        <input type="radio" name='baseLayerRadioButton' value='cartoDBBaseLayer'>cartoDBBaseLayer<br>
+        <!--<h2>Layers</h2>
+        <input type="checkbox" name='rasterLayerCheckbox' value='TileArcGISLayer' checked>Tile ArcGIS Layer<br>
+        <input type="checkbox" name='rasterLayerCheckbox' value='NOAAWMSLayer' checked>NOAA WMS Layer<br> -->
+      </div>
+    </div>
     <div class="grid-2">
       <div id='js-map' class='map'></div>
     </div>

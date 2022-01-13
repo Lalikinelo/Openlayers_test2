@@ -80,24 +80,32 @@ drawInteraction.on('drawend',function(e){
 
 map.addLayer(openstreetMapStandard);
 
+//////////////////////////////////////////////////////////////////////////////////
+
+//                    Base maps
+
+//////////////////////////////////////////////////////////////////////////////////
+
 const OSM_Layer = new ol.layer.Tile({
   source: new ol.source.OSM({
     url:'https://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
     zIndex:0,
     visible:false,
     extent: [12400753.576694038, -5658730.000549673, 17174426.336716905, -980228.5067132516],
-    opacity: 1
+    opacity: 1,
+    title: 'OSM_Layer'
     })      
   });
 
 
     // IGN WMS
-const IGN_Layer =  new ol.layer.Tile({
+const IGN_France_Layer =  new ol.layer.Tile({
   opacity: 0.5,
   zIndex:1,
   transparent: false,
   preload: Infinity,
   visible:false,
+  title: 'IGN_France_Layer',
   source: new ol.source.TileWMS({
     url: 'https://wxs.ign.fr/choisirgeoportail/geoportail/r/wms?',
     params : {'layers':'ORTHOIMAGERY.ORTHOPHOTOS.BDORTHO', 'format':'image/png','dpiMode':'7'}
@@ -112,19 +120,14 @@ bing_Layer = new ol.layer.Tile({
     }),
   visible:false,
   zIndex:2,
-  opacity: 1
+  opacity: 1,
+  title: 'bing_Layer'
   });
 
     // Bing Maps Basemap Layer
  
   
-  // CartoDB BaseMap Layer
-  const cartoDBBaseLayer = new ol.layer.Tile({
-    source: new ol.source.XYZ({
-      url:'https://{1-4}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
-      // pas de opacity ni de zindex
-      })
-    });
+
 
 // Stamen basemap layer
 
@@ -132,8 +135,9 @@ const stamenLayer = new ol.layer.Tile({
   source: new ol.source.XYZ({
       url:'http://tile.stamen.com/toner/{z}/{x}/{y}.png'
     }),
-  visible: true,
-  zIndex:4
+  visible: false,
+  zIndex:4,
+  title: 'stamenLayer'
   });
 
 const NOAAWMSLayer = new ol.layer.Tile({
@@ -142,18 +146,90 @@ const NOAAWMSLayer = new ol.layer.Tile({
     params:{LAYERS: 5, FORMAT: 'image/png', TRANSPARENT: true },
     attributions: '<a href=https://nowcoast.noaa.gov/>© NOAA<a/>'
     }),
-  visible: true,
-  zIndex:5,  
+  visible: false,
+  zIndex:5,
+  title: 'NOAAWMSLayer'
+  });
+
+    // CartoDB BaseMap Layer
+const cartoDBBaseLayer = new ol.layer.Tile({
+  source: new ol.source.XYZ({
+    url:'https://{1-4}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png',
+    params:{VERSION : '2.0.0', REQUEST:'GetFeature',TYPENAME:'DBTOPO_V3:' ,OUTPUTFORMAT: 'application/json',COUNT:'100'},
+    // pas de opacity ni de zindex
+    }),
+    visible: false,
+    zIndex:6,
+    title: 'cartoDBBaseLayer'
   });
 
 
-
-// Layer Group
-const layerGroup = new ol.layer.Group({
-  layers:[OSM_Layer, IGN_Layer, bing_Layer, stamenLayer, NOAAWMSLayer]
+// creation du groupe et Affichage
+const baseLayerGroup = new ol.layer.Group({
+  layers:[OSM_Layer, bing_Layer, stamenLayer, NOAAWMSLayer,IGN_France_Layer, cartoDBBaseLayer] //
 });
 
-map.addLayer(layerGroup);
+map.addLayer(baseLayerGroup);
+
+
+
+
+// Affichage des couches raqter avec un Bouton radio
+
+const baseLayerElements = document.querySelectorAll('input[name=baseLayerRadioButton]');
+// choix du bouton radio sélectionné
+for (let baseLayerElement of baseLayerElements){
+  // Changer la couche en fonction du bouton radio
+  baseLayerElement.addEventListener('change', function(){
+    let baseLayerElementValue = this.value;
+    baseLayerGroup.getLayers().forEach(function(element, index, array){
+      let baseLayerName = element.get('title');
+      element.setVisible(baseLayerName === baseLayerElementValue);
+      // rendre visible le layer qui a le même nom que celui dont le bouton radio est coché
+    })
+  })
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+//              Couches vecteur
+
+
+//////////////////////////////////////////////////////////////////////////
+
+
+//Vector MapTiler
+const Maptiler = new ol.layer.VectorTile({
+source: new ol.source.VectorTile({
+    url: 'https://api.maptiler.com/tiles/v3-4326/{z}/{x}/{y}.pbf?key=Es6gWkB1kbS4O9RJyKjz',
+    format: new ol.format.MVT(),
+    attributions: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a>',
+  }),
+  visibile:true
+})
+map.addLayer(Maptiler)
+
+/*
+const EUCentralGeoJSON = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url:'https://download.data.grandlyon.com/wfs/rdata?',
+    params:{SERVICE:'WFS',VERSION:'2.0.0',request:'GetFeature',typename:'tcl_sytral.tclstation',SRSNAME:'EPSG:4326',OUTPUTFORMAT:'application/json'}
+  }),
+  visible: true
+  })
+  map.addLayer(EUCentralGeoJSON);
+*/
+
+const VectorLayerGroup = new ol.layer.Group({
+  layers:[Maptiler] //
+});
+
+map.addLayer(VectorLayerGroup);
+
+
 
 /*
 // TileDebug
